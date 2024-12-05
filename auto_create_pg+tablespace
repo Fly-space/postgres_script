@@ -1,0 +1,41 @@
+#!/bin/sh
+
+path="/var/pgscript/data.txt"
+logfile="/var/pgscript/makebase.log"
+
+makebase () {
+    NAMEBASE=$1
+    DIR="/mnt/data/"
+    
+    echo "Creating directory for database: $NAMEBASE" >> "$logfile" 2>&1
+    DIRBASE="${DIR}${NAMEBASE}"
+    echo "Directory path: $DIRBASE" >> "$logfile" 2>&1
+    
+    mkdir "$DIRBASE" >> "$logfile" 2>&1
+    if [ $? -ne 0 ]; then
+        echo "Failed to create directory: $DIRBASE" >> "$logfile" 2>&1
+        return 1
+    fi
+
+    chown postgres:postgres "$DIRBASE" >> "$logfile" 2>&1
+
+    echo "Creating tablespace: $NAMEBASE" >> "$logfile" 2>&1
+    sudo -i -u postgres psql -c "CREATE TABLESPACE $NAMEBASE LOCATION '$DIRBASE';" >> "$logfile" 2>&1
+    if [ $? -ne 0 ]; then
+        echo "Failed to create tablespace: $NAMEBASE" >> "$logfile" 2>&1
+        return 1
+    fi
+
+    echo "Creating database: $NAMEBASE" >> "$logfile" 2>&1
+    sudo -i -u postgres psql -c "CREATE DATABASE $NAMEBASE WITH TEMPLATE = template1c TABLESPACE = $NAMEBASE" >> "$logfile" 2>&1
+    if [ $? -ne 0 ]; then
+        echo "Failed to create database: $NAMEBASE" >> "$logfile" 2>&1
+        return 1
+    fi
+
+    echo "Successfully created database: $NAMEBASE" >> "$logfile" 2>&1
+}
+
+while IFS= read -r p; do
+    makebase "$p"
+done < "$path"
