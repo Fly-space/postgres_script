@@ -29,8 +29,8 @@ rm -f /tmp/result
 mailsend () {
 body=$(cat /var/pgscripts/mailbody.txt)
 
- curl -s --url 'smtp://mail.server.log:25' --mail-from srv-1c17@server.log --mail-rcpt e.lepeshkov@mserver.log \
-	-H "Subject: SRV-1c17 PG_dump summary" -H "From: srv-1c17@server.log" -H "To: e.lepeshkov@mserver.log" -F '=(;type=multipart/mixed' -F "=$body;type=text/plain"
+ curl -s --url 'smtp://mail.server.log:25' --mail-from srv-1c17@server.log --mail-rcpt ivanov@mserver.log \
+	-H "Subject: SRV-1c17 PG_dump summary" -H "From: srv-1c17@server.log" -H "To: ivanov@mserver.log" -F '=(;type=multipart/mixed' -F "=$body;type=text/plain"
 }
 
 for p in `cat "$path"`;
